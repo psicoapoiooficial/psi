@@ -1,1 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsicoApoio - Seu Oásis Mental</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <h1 class="main-title">PsicoApoio</h1>
+            <ul>
+                <li><a href="#respiracao" class="nav-link active"><i class="fas fa-wind"></i>
+                        <span>Respiração</span></a></li>
+                <li><a href="#biblia" class="nav-link"><i class="fas fa-book-bible"></i> <span>Espaço Bíblico</span></a>
+                </li>
+                <li><a href="#diario" class="nav-link"><i class="fas fa-pencil-alt"></i> <span>Meu Diário</span></a>
+                </li>
+                <li><a href="#calendario" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Calendário do
+                            Bem</span></a></li>
+                <li><a href="#checklist" class="nav-link"><i class="fas fa-check-square"></i> <span>Checklist
+                            Positivo</span></a></li>
+                <li><a href="#musica" class="nav-link"><i class="fas fa-music"></i> <span>Minha Playlist</span></a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <section id="respiracao" class="page active">
+                <h2>Respire Fundo e Relaxe</h2>
+                <p>Sincronize sua respiração com a animação. Inspire quando o círculo crescer, segure e expire quando
+                    ele diminuir.</p>
+                <div class="breathing-circle-container">
+                    <div class="breathing-circle"></div>
+                    <p class="breathing-text">Começar</p>
+                </div>
+            </section>
+
+            <section id="biblia" class="page">
+                <h2>Palavra de Força e Esperança</h2>
+                <div class="bible-verse-container">
+                    <p id="daily-verse-text">"O Senhor é o meu pastor; nada me faltará."</p>
+                    <span id="daily-verse-ref">- Salmos 23:1</span>
+                </div>
+                <button id="generate-verse-btn">Gerar Novo Versículo</button>
+                <hr>
+                <h3>Tesouros Bíblicos</h3>
+                <div class="bible-popups">
+                    <button class="popup-btn" data-title="O Sermão da Montanha"
+                        data-text="Bem-aventurados os humildes, pois eles receberão a terra por herança. Bem-aventurados os que choram, pois serão consolados. - Mateus 5:4-5">Sermão
+                        da Montanha</button>
+                    <button class="popup-btn" data-title="O Fruto do Espírito"
+                        data-text="Mas o fruto do Espírito é amor, alegria, paz, paciência, amabilidade, bondade, fidelidade, mansidão e domínio próprio. - Gálatas 5:22-23">Fruto
+                        do Espírito</button>
+                </div>
+            </section>
+
+            <section id="diario" class="page">
+                <h2>Meu Diário</h2>
+                <p>Um espaço seguro para seus pensamentos. Tudo fica salvo no seu navegador.</p>
+                <textarea id="journal-textarea" placeholder="Querido diário..."></textarea>
+            </section>
+
+            <section id="calendario" class="page">
+                <h2>Calendário do Bem</h2>
+                <p>Clique em um dia para descobrir uma atividade saudável surpresa!</p>
+                <div id="calendar-grid" class="calendar-grid">
+                </div>
+            </section>
+
+            <section id="checklist" class="page">
+                <h2>Checklist de Atividades Positivas</h2>
+                <ul id="checklist-list" class="checklist">
+                </ul>
+            </section>
+
+            <section id="musica" class="page">
+                <h2>Minha Playlist</h2>
+                <p>Cole o link da sua playlist favorita (Spotify, YouTube, etc.) para tê-la sempre à mão.</p>
+                <input type="text" id="playlist-input" placeholder="https://open.spotify.com/playlist/...">
+                <button id="save-playlist-btn">Salvar Playlist</button>
+                <div id="playlist-player-container"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <div id="modal" class="modal-container">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3 id="modal-title">Título do Modal</h3>
+            <p id="modal-text">Texto do modal...</p>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
+
+/* --- GERAL E VARIÁVEIS --- */
+:root {
+    --primary-blue: #2980b9;
+    --secondary-blue: #3498db;
+    --light-bg: #ecf0f1;
+    --dark-text: #2c3e50;
+    --light-text: #ffffff;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+/* --- ESTRUTURA PRINCIPAL DO DASHBOARD --- */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    /* Padrão para mobile */
+    min-height: 100vh;
+}
+
+.sidebar {
+    background-color: var(--light-text);
+    padding: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.main-title {
+    color: var(--primary-blue);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* Permite que os itens quebrem a linha em telas pequenas */
+}
+
+.sidebar ul li a {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    margin: 0.2rem;
+    color: var(--dark-text);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar ul li a i {
+    margin-right: 0.5rem;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+}
+
+.content {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+.page {
+    display: none;
+    /* Esconde todas as páginas por padrão */
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.page.active {
+    display: block;
+    /* Mostra apenas a página ativa */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (min-width: 768px) {
+    .dashboard-container {
+        flex-direction: row;
+        /* Layout lado a lado em telas maiores */
+    }
+
+    .sidebar {
+        min-width: 250px;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar ul {
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .sidebar ul li a span {
+        display: inline;
+        /* Mostra o texto ao lado do ícone */
+    }
+}
+
+/* --- ESTILOS DOS COMPONENTES --- */
+
+/* 1. Respiração */
+.breathing-circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    position: relative;
+    margin-top: 2rem;
+}
+
+.breathing-circle {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, var(--secondary-blue), var(--primary-blue));
+    border-radius: 50%;
+    transition: transform 4s ease-in-out;
+}
+
+.breathing-text {
+    position: absolute;
+    color: var(--light-text);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Animação da Respiração */
+.breathing.grow {
+    animation: grow 4s ease-in-out forwards;
+}
+
+.breathing.shrink {
+    animation: shrink 6s ease-in-out forwards 1s;
+    /* Duração maior para expirar */
+}
+
+@keyframes grow {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.8);
+    }
+}
+
+@keyframes shrink {
+    from {
+        transform: scale(1.8);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* 2. Bíblia */
+.bible-verse-container {
+    background: var(--light-text);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+#daily-verse-text {
+    font-size: 1.2rem;
+    font-style: italic;
+}
+
+#daily-verse-ref {
+    display: block;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
+button {
+    background-color: var(--primary-blue);
+    color: var(--light-text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #2c3e50;
+}
+
+.bible-popups {
+    margin-top: 1rem;
+}
+
+/* 3. Diário */
+#journal-textarea {
+    width: 100%;
+    height: 60vh;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+/* 4. Calendário */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.calendar-day {
+    background-color: var(--light-text);
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.calendar-day:hover {
+    transform: translateY(-5px);
+    background-color: var(--secondary-blue);
+    color: var(--light-text);
+}
+
+/* 5. Checklist */
+.checklist {
+    list-style: none;
+}
+
+.checklist li {
+    background-color: #fff;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checklist li input {
+    margin-right: 1rem;
+}
+
+.checklist li.completed {
+    text-decoration: line-through;
+    color: #95a5a6;
+}
+
+/* 6. Música */
+#playlist-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#playlist-player-container iframe {
+    width: 100%;
+    height: 380px;
+    border: none;
+    border-radius: 12px;
+    margin-top: 1rem;
+}
+
+/* --- MODAL / POP-UP --- */
+.modal-container {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.3s;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+}
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- NAVEGAÇÃO PRINCIPAL ---
+    const navLinks = document.querySelectorAll('.nav-link');
+    const pages = document.querySelectorAll('.page');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // Remove a classe 'active' de todos
+            navLinks.forEach(l => l.classList.remove('active'));
+            pages.forEach(p => p.classList.remove('active'));
+
+            // Adiciona a classe 'active' ao link clicado e à página correspondente
+            link.classList.add('active');
+            const targetPage = document.querySelector(link.getAttribute('href'));
+            targetPage.classList.add('active');
+        });
+    });
+
+    // --- 1. MÓDULO DE RESPIRAÇÃO ---
+    const circleContainer = document.querySelector('.breathing-circle-container');
+    const circle = document.querySelector('.breathing-circle');
+    const breathText = document.querySelector('.breathing-text');
+    let isBreathing = false;
+
+    circleContainer.addEventListener('click', () => {
+        if (!isBreathing) {
+            startBreathing();
+        }
+    });
+
+    function startBreathing() {
+        isBreathing = true;
+        breathText.textContent = "Inspire...";
+        circle.style.animation = 'grow 4s ease-in-out forwards';
+
+        setTimeout(() => {
+            breathText.textContent = "Segure";
+        }, 4000);
+
+        setTimeout(() => {
+            breathText.textContent = "Expire...";
+            circle.style.animation = 'shrink 6s ease-in-out forwards';
+        }, 6000);
+
+        // Reinicia o ciclo
+        setTimeout(() => {
+            isBreathing = false;
+            breathText.textContent = "Começar";
+            circle.style.animation = 'none';
+        }, 12000);
+    }
+
+    // --- 2. MÓDULO BÍBLICO ---
+    const verseText = document.getElementById('daily-verse-text');
+    const verseRef = document.getElementById('daily-verse-ref');
+    const generateVerseBtn = document.getElementById('generate-verse-btn');
+
+    const bibleVerses = [
+        { text: "Tudo posso naquele que me fortalece.", ref: "Filipenses 4:13" },
+        { text: "Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.", ref: "João 3:16" },
+        { text: "Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia.", ref: "Salmos 46:1" },
+        { text: "O choro pode durar uma noite, mas a alegria vem pela manhã.", ref: "Salmos 30:5" },
+        { text: "Lancem sobre ele toda a sua ansiedade, porque ele tem cuidado de vocês.", ref: "1 Pedro 5:7" }
+    ];
+
+    function getRandomVerse() {
+        const randomIndex = Math.floor(Math.random() * bibleVerses.length);
+        verseText.textContent = `"${bibleVerses[randomIndex].text}"`;
+        verseRef.textContent = `- ${bibleVerses[randomIndex].ref}`;
+    }
+
+    generateVerseBtn.addEventListener('click', getRandomVerse);
+    getRandomVerse(); // Gera um versículo ao carregar a página
+
+    // --- MODAL / POP-UP ---
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalText = document.getElementById('modal-text');
+    const closeBtn = document.querySelector('.close-btn');
+    const popupBtns = document.querySelectorAll('.popup-btn');
+
+    function openModal(title, text) {
+        modalTitle.textContent = title;
+        modalText.textContent = text;
+        modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+    }
+
+    popupBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            openModal(btn.dataset.title, btn.dataset.text);
+        });
+    });
+    closeBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => {
+        if (e.target == modal) {
+            closeModal();
+        }
+    });
+
+    // --- 3. MÓDULO DIÁRIO ---
+    const journalTextarea = document.getElementById('journal-textarea');
+
+    // Carregar o diário salvo
+    journalTextarea.value = localStorage.getItem('journalEntry') || '';
+
+    // Salvar no diário ao digitar
+    journalTextarea.addEventListener('keyup', () => {
+        localStorage.setItem('journalEntry', journalTextarea.value);
+    });
+
+    // --- 4. MÓDULO CALENDÁRIO ---
+    const calendarGrid = document.getElementById('calendar-grid');
+    const healthyActivities = [
+        "Faça uma caminhada de 15 minutos.",
+        "Beba um copo de água agora.",
+        "Faça 5 minutos de alongamento.",
+        "Escreva 3 coisas pelas quais você é grato.",
+        "Ouça uma música que te deixe feliz.",
+        "Medite por 3 minutos em silêncio.",
+        "Organize uma pequena área do seu quarto.",
+        "Mande uma mensagem para um amigo.",
+        "Leia uma página de um livro.",
+        "Planeje uma refeição saudável."
+    ];
+
+    for (let i = 1; i <= 31; i++) {
+        const day = document.createElement('div');
+        day.classList.add('calendar-day');
+        day.textContent = i;
+        day.addEventListener('click', () => {
+            const randomActivity = healthyActivities[Math.floor(Math.random() * healthyActivities.length)];
+            openModal(`Atividade para o dia ${i}`, randomActivity);
+        });
+        calendarGrid.appendChild(day);
+    }
+
+    // --- 5. MÓDULO CHECKLIST ---
+    const checklistList = document.getElementById('checklist-list');
+    const checklistItems = [
+        { text: "Beber 2 litros de água", completed: false },
+        { text: "Fazer 10 minutos de exercício", completed: false },
+        { text: "Ler por 15 minutos", completed: false },
+        { text: "Meditar por 5 minutos", completed: false },
+        { text: "Agradecer por 3 coisas hoje", completed: false }
+    ];
+
+    let userChecklist = JSON.parse(localStorage.getItem('userChecklist')) || checklistItems;
+
+    function renderChecklist() {
+        checklistList.innerHTML = '';
+        userChecklist.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.classList.toggle('completed', item.completed);
+            li.innerHTML = `
+                <input type="checkbox" ${item.completed ? 'checked' : ''} data-index="${index}">
+                <label>${item.text}</label>
+            `;
+            checklistList.appendChild(li);
+        });
+    }
+
+    checklistList.addEventListener('click', (e) => {
+        if (e.target.type === 'checkbox') {
+            const index = e.target.dataset.index;
+            userChecklist[index].completed = !userChecklist[index].completed;
+            localStorage.setItem('userChecklist', JSON.stringify(userChecklist));
+            renderChecklist();
+        }
+    });
+
+    renderChecklist();
+
+    // --- 6. MÓDULO DE MÚSICA ---
+    const playlistInput = document.getElementById('playlist-input');
+    const savePlaylistBtn = document.getElementById('save-playlist-btn');
+    const playerContainer = document.getElementById('playlist-player-container');
+
+    function loadPlaylist() {
+        const savedLink = localStorage.getItem('playlistLink');
+        if (savedLink) {
+            playlistInput.value = savedLink;
+            embedPlaylist(savedLink);
+        }
+    }
+
+    function embedPlaylist(link) {
+        let embedUrl = '';
+        if (link.includes('spotify.com')) {
+            const playlistId = new URL(link).pathname.split('/').pop();
+            embedUrl = `https://open.spotify.com/embed/playlist/${playlistId}`;
+        } else if (link.includes('youtube.com/playlist')) {
+            const listId = new URL(link).searchParams.get('list');
+            embedUrl = `https://www.youtube.com/embed/videoseries?list=${listId}`;
+        }
+
+        if (embedUrl) {
+            playerContainer.innerHTML = `<iframe src="${embedUrl}" allow="encrypted-media"></iframe>`;
+        } else {
+            playerContainer.innerHTML = `<p>Link inválido ou não suportado. Tente um link de playlist do Spotify ou YouTube.</p>`;
+        }
+    }
+
+    savePlaylistBtn.addEventListener('click', () => {
+        const link = playlistInput.value;
+        if (link) {
+            localStorage.setItem('playlistLink', link);
+            embedPlaylist(link);
+        }
+    });
+
+    loadPlaylist();
+
+});
